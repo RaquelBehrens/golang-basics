@@ -19,4 +19,10 @@ func main() {
 	for name, age := range employees {
 		fmt.Printf("%s is %d years old.\n", name, age)
 	}
+
+	lala := 10
+	var prt *int
+	prt = &lala
+	fmt.Println(*prt)
+
 }
