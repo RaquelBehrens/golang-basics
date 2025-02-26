@@ -21,8 +21,7 @@ func main() {
 	}
 
 	lala := 10
-	var prt *int
-	prt = &lala
+	var prt *int = &lala
 	fmt.Println(*prt)
 
 }
