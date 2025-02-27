@@ -63,10 +63,11 @@ func TestFood_CategoryNotFound(t *testing.T) {
 	// arrange
 
 	// act
-	_, err := food.Food("doug")
+	operation, err := food.Food("doug")
 
 	// assert
 	require.Error(t, err)
 	require.ErrorIs(t, err, food.ErrCategoryNotFound)
 	require.EqualError(t, err, food.ErrCategoryNotFound.Error())
+	require.Nil(t, operation)
 }

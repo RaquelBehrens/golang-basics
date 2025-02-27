@@ -50,10 +50,11 @@ func TestOperation_CategoryNotFound(t *testing.T) {
 	// arrange
 
 	// act
-	_, err := statistics.Operation("max")
+	operation, err := statistics.Operation("max")
 
 	// assert
 	require.Error(t, err)
 	require.ErrorIs(t, err, statistics.ErrCategoryNotFound)
 	require.EqualError(t, err, statistics.ErrCategoryNotFound.Error())
+	require.Nil(t, operation)
 }
