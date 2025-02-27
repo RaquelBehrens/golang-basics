@@ -56,11 +56,11 @@ func main() {
 
 	// Exercício 5
 	animalDog, msg := animal(dog)
-	if err != msg {
+	if msg != nil {
 		fmt.Println(err)
 	}
 	animalCat, msg := animal(cat)
-	if err != msg {
+	if msg != nil {
 		fmt.Println(err)
 	}
 
