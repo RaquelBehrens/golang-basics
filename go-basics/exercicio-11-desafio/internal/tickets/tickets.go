@@ -137,12 +137,12 @@ func inTimeSpan(start, end, check time.Time) bool {
 }
 
 // ejemplo 3
-func AverageDestination(destination string, total int) (int, error) {
+func AverageDestination(destination string, total int) (float64, error) {
 	totalByDestination, err := GetTotalTicketsByDestination(destination)
 	if err != nil {
 		return 0, err
 	}
 
 	var percentage float64 = float64(totalByDestination) / float64(total)
-	return int(percentage * 100), nil
+	return percentage * 100, nil
 }

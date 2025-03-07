@@ -9,11 +9,11 @@ import (
 func main() {
 	tickets.GetTicketsFromCSV("tickets.csv")
 
-	total, err := tickets.GetTotalTicketsByDestination("Brazil")
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(total)
+	// total, err := tickets.GetTotalTicketsByDestination("Brazil")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(total)
 
 	// total, err := tickets.GetCountByPeriod(tickets.Evening)
 	// if err != nil {
@@ -21,9 +21,9 @@ func main() {
 	// }
 	// fmt.Println(total)
 
-	// total, err := tickets.AverageDestination("Brazil", 100)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// fmt.Println(total)
+	total, err := tickets.AverageDestination("Brazil", 1000)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(total)
 }

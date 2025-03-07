@@ -73,26 +73,26 @@ func TestAverageDestination_ValidDestination(t *testing.T) {
 	// arrange
 	country := "Brazil"
 	total := 100
-	expected := 45
+	expected := 45.0
 
 	// act
-	total, err := tickets.AverageDestination(country, total)
+	result, err := tickets.AverageDestination(country, total)
 
 	// assert
 	require.NoError(t, err)
-	require.Equal(t, expected, total, "Get average tickets by valid destination.")
+	require.Equal(t, expected, result, "Get average tickets by valid destination.")
 }
 
 func TestAverageDestination_InvalidDestination(t *testing.T) {
 	// arrange
 	country := "Non-existent country"
 	total := 100
-	expected := 0
+	expected := 0.0
 
 	// act
-	total, err := tickets.AverageDestination(country, total)
+	result, err := tickets.AverageDestination(country, total)
 
 	// assert
 	require.NoError(t, err)
-	require.Equal(t, expected, total, "Get average tickets by invalid destination.")
+	require.Equal(t, expected, result, "Get average tickets by invalid destination.")
 }
