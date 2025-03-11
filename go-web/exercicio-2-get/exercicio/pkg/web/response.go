@@ -5,16 +5,16 @@ import (
 	"net/http"
 )
 
-type response struct {
+type ResponseBodyProduct struct {
 	Message string       `json:"message"`
 	Data    *interface{} `json:"data"`
-	Error   bool
+	Error   bool         `json:"error"`
 }
 
 func ResponseJson(w http.ResponseWriter, code int, data interface{}, message string) {
 	w.Header().Set("Content-Type", "application/json")
 
-	response := &response{}
+	response := &ResponseBodyProduct{}
 	response.Data = &data
 	response.Message = message
 
