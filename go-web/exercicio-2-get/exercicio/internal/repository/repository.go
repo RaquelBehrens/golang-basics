@@ -1,18 +1,32 @@
-package main
+package repository
 
 import (
 	"encoding/json"
 	"errors"
-	"exercicio/cmd/api/handlers"
-	"log"
-	"net/http"
+	"exercicio/internal/domain"
 	"os"
 	"time"
-
-	"github.com/go-chi/chi/v5"
 )
 
-func loadProductsFromFile(path string) ([]handlers.Product, error) {
+type ProductRepository interface {
+	GetAll() ([]domain.Product, error)
+	GetByID(id int) (*domain.Product, error)
+	Create(product domain.Product) error
+}
+
+type productRepository struct {
+	products []domain.Product
+}
+
+func NewProductRepository(path string) (ProductRepository, error) {
+	products, err := loadProductsFromFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return &productRepository{products: products}, nil
+}
+
+func loadProductsFromFile(path string) ([]domain.Product, error) {
 	var products []map[string]interface{}
 
 	file, err := os.Open(path)
@@ -27,7 +41,7 @@ func loadProductsFromFile(path string) ([]handlers.Product, error) {
 		return nil, err
 	}
 
-	var convertedProducts []handlers.Product
+	var convertedProducts []domain.Product
 	for _, productMap := range products {
 		// Conversão segura de ID
 		id, ok := productMap["id"].(float64)
@@ -72,7 +86,7 @@ func loadProductsFromFile(path string) ([]handlers.Product, error) {
 			return nil, errors.New("preço é inválido ou está ausente")
 		}
 
-		convertedProduct := handlers.Product{
+		convertedProduct := domain.Product{
 			ID:          int(id), // IDs no JSON tipicamente vêm como float64
 			Name:        name,
 			Quantity:    int(quantity),
@@ -88,25 +102,20 @@ func loadProductsFromFile(path string) ([]handlers.Product, error) {
 	return convertedProducts, nil
 }
 
-func main() {
-	products, err := loadProductsFromFile("products.json")
-	if err != nil {
-		panic(err)
+func (r *productRepository) GetAll() ([]domain.Product, error) {
+	return r.products, nil
+}
+
+func (r *productRepository) GetByID(id int) (*domain.Product, error) {
+	for _, product := range r.products {
+		if product.ID == id {
+			return &product, nil
+		}
 	}
-	//fmt.Println("Loaded products:", products)
+	return nil, errors.New("produto não encontrado")
+}
 
-	rt := chi.NewRouter()
-
-	handler := handlers.NewProductHandler(products)
-
-	rt.Route("/products", func(rt chi.Router) {
-		rt.Get("/", handler.GetAll())
-		rt.Get("/{id}", handler.GetByID())
-
-		rt.Post("/", handler.Create())
-	})
-
-	log.Println("Servidor rodando em http://localhost:8080")
-	http.ListenAndServe("localhost:8080", rt)
-
+func (r *productRepository) Create(product domain.Product) error {
+	r.products = append(r.products, product)
+	return nil
 }
