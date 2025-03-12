@@ -6,12 +6,12 @@ import (
 )
 
 type ResponseBodyProduct struct {
-	Message string       `json:"message"`
-	Data    *interface{} `json:"data"`
-	Error   bool         `json:"error"`
+	Message string `json:"message"`
+	Data    *any   `json:"data"`
+	Error   bool   `json:"error"`
 }
 
-func ResponseJson(w http.ResponseWriter, code int, data interface{}, message string) {
+func ResponseJson(w http.ResponseWriter, code int, data any, message string) {
 	w.Header().Set("Content-Type", "application/json")
 
 	response := &ResponseBodyProduct{}

@@ -92,3 +92,94 @@ func (e *ProductHandler) Create() http.HandlerFunc {
 		web.ResponseJson(w, http.StatusCreated, product, "Produto adicionado!")
 	}
 }
+
+func (e *ProductHandler) UpdateOrCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := chi.URLParam(r, "id")
+		var id int
+		if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
+			web.ResponseJson(w, http.StatusBadRequest, nil, "ID inválido!")
+			return
+		}
+
+		var reqBody domain.RequestBodyProduct
+		if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+			web.ResponseJson(w, http.StatusBadRequest, nil, "JSON inválido!")
+			return
+		}
+
+		// Mover a lógica de validação e criação para o service
+		product, err := e.srv.UpdateOrCreate(id, reqBody)
+		if err != nil {
+			if err.Error() == "code_value já existe" {
+				web.ResponseJson(w, http.StatusConflict, nil, "code_value já existe!")
+				return
+			}
+			if err.Error() == "dados inválidos" {
+				web.ResponseJson(w, http.StatusBadRequest, nil, "Todos os campos exceto is_published são obrigatórios!")
+				return
+			}
+			if err.Error() == "data de validade inválida" {
+				web.ResponseJson(w, http.StatusBadRequest, nil, "Data de validade inválida!")
+				return
+			}
+			web.ResponseJson(w, http.StatusInternalServerError, nil, "Erro ao criar produto")
+			return
+		}
+
+		web.ResponseJson(w, http.StatusOK, product, "Produto processado com sucesso!")
+	}
+}
+
+func (e *ProductHandler) Patch() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := chi.URLParam(r, "id")
+		var id int
+		if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
+			web.ResponseJson(w, http.StatusBadRequest, nil, "ID inválido!")
+			return
+		}
+
+		var reqBody map[string]interface{}
+		if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+			web.ResponseJson(w, http.StatusBadRequest, nil, "JSON inválido!")
+			return
+		}
+
+		// Mover a lógica de validação e criação para o service
+		product, err := e.srv.Patch(id, reqBody)
+		if err != nil {
+			if err.Error() == "produto não encontrado" {
+				web.ResponseJson(w, http.StatusNotFound, nil, "Produto não encontrado!")
+				return
+			}
+			web.ResponseJson(w, http.StatusInternalServerError, nil, err.Error())
+			return
+		}
+
+		web.ResponseJson(w, http.StatusOK, product, "Produto atualizado com sucesso!")
+	}
+}
+
+func (e *ProductHandler) Delete() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := chi.URLParam(r, "id")
+		var id int
+		if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
+			web.ResponseJson(w, http.StatusBadRequest, nil, "ID inválido!")
+			return
+		}
+		// Mover a lógica de validação e criação para o service
+		err := e.srv.Delete(id)
+		if err != nil {
+			if err.Error() == "produto não encontrado" {
+				web.ResponseJson(w, http.StatusNotFound, nil, "Produto não encontrado!")
+				return
+			}
+			web.ResponseJson(w, http.StatusInternalServerError, nil, err.Error())
+			return
+		}
+
+		web.ResponseJson(w, http.StatusOK, nil, "Produto deletado com sucesso!")
+	}
+}

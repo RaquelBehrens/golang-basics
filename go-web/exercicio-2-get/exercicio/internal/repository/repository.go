@@ -12,6 +12,8 @@ type ProductRepository interface {
 	GetAll() ([]domain.Product, error)
 	GetByID(id int) (*domain.Product, error)
 	Create(product domain.Product) error
+	Update(id int, product domain.Product) error
+	Delete(product domain.Product) error
 }
 
 type productRepository struct {
@@ -118,4 +120,25 @@ func (r *productRepository) GetByID(id int) (*domain.Product, error) {
 func (r *productRepository) Create(product domain.Product) error {
 	r.products = append(r.products, product)
 	return nil
+}
+
+func (r *productRepository) Update(id int, product domain.Product) error {
+	for index, existingProduct := range r.products {
+		if existingProduct.ID == product.ID {
+			r.products[index] = product
+			return nil
+		}
+	}
+	return errors.New("produto não encontrado")
+}
+
+func (r *productRepository) Delete(product domain.Product) error {
+	for index, existingProduct := range r.products {
+		if existingProduct.ID == product.ID {
+			// Remova o produto da lista
+			r.products = append(r.products[:index], r.products[index+1:]...)
+			return nil
+		}
+	}
+	return errors.New("produto não encontrado")
 }

@@ -30,6 +30,9 @@ func main() {
 		rt.Get("/", handler.GetAll())
 		rt.Get("/{id}", handler.GetByID())
 		rt.Post("/", handler.Create())
+		rt.Put("/{id}", handler.UpdateOrCreate())
+		rt.Patch("/{id}", handler.Patch())
+		rt.Delete("/{id}", handler.Delete())
 	})
 
 	log.Println("Servidor rodando em http://localhost:8080")
