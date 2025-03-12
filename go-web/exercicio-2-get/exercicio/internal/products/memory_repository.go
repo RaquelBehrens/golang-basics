@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"exercicio/internal/domain"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -43,13 +44,11 @@ func loadProductsFromFile(path string) ([]domain.Product, error) {
 
 	var convertedProducts []domain.Product
 	for _, productMap := range products {
-		// Conversão segura de ID
 		id, ok := productMap["id"].(float64)
 		if !ok {
 			return nil, errors.New("ID é inválido ou está ausente")
 		}
 
-		// Conversão segura de "expiration"
 		expirationStr, ok := productMap["expiration"].(string)
 		if !ok || expirationStr == "" {
 			return nil, errors.New("data de validade é inválida ou está ausente")
@@ -60,7 +59,6 @@ func loadProductsFromFile(path string) ([]domain.Product, error) {
 			return nil, errors.New("formato de data de validade inválido: " + err.Error())
 		}
 
-		// Conversões seguras para outros campos
 		name, ok := productMap["name"].(string)
 		if !ok || name == "" {
 			return nil, errors.New("nome é inválido ou está ausente")
@@ -87,7 +85,7 @@ func loadProductsFromFile(path string) ([]domain.Product, error) {
 		}
 
 		convertedProduct := domain.Product{
-			ID:          int(id), // IDs no JSON tipicamente vêm como float64
+			ID:          int(id),
 			Name:        name,
 			Quantity:    int(quantity),
 			CodeValue:   codeValue,
@@ -110,33 +108,33 @@ func (r *memoryRepository) GetAll() ([]domain.Product, error) {
 	return products, nil
 }
 
-func (r *memoryRepository) GetByID(id int) (*domain.Product, error) {
-	if product, exists := r.products[id]; exists {
+func (r *memoryRepository) GetByID(productId int) (*domain.Product, error) {
+	if product, exists := r.products[productId]; exists {
 		return &product, nil
 	}
-	return nil, errors.New("produto não encontrado")
+	return nil, fmt.Errorf("%w: Produto com id %d não encontrado", domain.ErrResourceNotFound, productId)
 }
 
 func (r *memoryRepository) Create(product *domain.Product) error {
 	if _, exists := r.products[product.ID]; exists {
-		return errors.New("um produto com esse id já existe")
+		return fmt.Errorf("%w: Produto com id %d já existe", domain.ErrResourceAlreadyExists, product.ID)
 	}
 	r.products[product.ID] = *product
 	return nil
 }
 
-func (r *memoryRepository) Update(id int, product *domain.Product) error {
-	if _, exists := r.products[id]; !exists {
-		return errors.New("produto não encontrado")
+func (r *memoryRepository) Update(product *domain.Product) error {
+	if _, exists := r.products[product.ID]; !exists {
+		return fmt.Errorf("%w: Produto com id %d não encontrado", domain.ErrResourceNotFound, product.ID)
 	}
-	r.products[id] = *product
+	r.products[product.ID] = *product
 	return nil
 }
 
-func (r *memoryRepository) Delete(id int) error {
-	if _, exists := r.products[id]; !exists {
-		return errors.New("produto não encontrado")
+func (r *memoryRepository) Delete(productId int) error {
+	if _, exists := r.products[productId]; !exists {
+		return fmt.Errorf("%w: Produto com id %d não encontrado", domain.ErrResourceNotFound, productId)
 	}
-	delete(r.products, id)
+	delete(r.products, productId)
 	return nil
 }

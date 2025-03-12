@@ -3,6 +3,7 @@ package products
 import (
 	"errors"
 	"exercicio/internal/domain"
+	"fmt"
 	"time"
 )
 
@@ -23,12 +24,10 @@ func (s *productService) GetByID(id int) (*domain.Product, error) {
 }
 
 func (s *productService) Create(reqBody domain.RequestBodyProduct) (domain.Product, error) {
-	// Validar campos obrigatórios
 	if reqBody.Name == "" || reqBody.Quantity <= 0 || reqBody.CodeValue == "" || reqBody.Expiration == "" || reqBody.Price <= 0 {
 		return domain.Product{}, errors.New("todos os campos exceto is_published são obrigatórios")
 	}
 
-	// Verificar se o code_value é único
 	products, err := s.repo.GetAll()
 	if err != nil {
 		return domain.Product{}, err
@@ -39,7 +38,6 @@ func (s *productService) Create(reqBody domain.RequestBodyProduct) (domain.Produ
 		}
 	}
 
-	// Converter a data de validade para time.Time
 	expiration, err := time.Parse("02/01/2006", reqBody.Expiration)
 	if err != nil {
 		return domain.Product{}, errors.New("data de validade inválida")
@@ -63,7 +61,6 @@ func (s *productService) Create(reqBody domain.RequestBodyProduct) (domain.Produ
 		Price:       reqBody.Price,
 	}
 
-	// Adicionar o produto à "database"
 	if err := s.repo.Create(&product); err != nil {
 		return domain.Product{}, err
 	}
@@ -72,12 +69,10 @@ func (s *productService) Create(reqBody domain.RequestBodyProduct) (domain.Produ
 }
 
 func (s *productService) UpdateOrCreate(id int, reqBody domain.RequestBodyProduct) (domain.Product, error) {
-	// Validar campos obrigatórios
 	if reqBody.Name == "" || reqBody.Quantity <= 0 || reqBody.CodeValue == "" || reqBody.Expiration == "" || reqBody.Price <= 0 {
 		return domain.Product{}, errors.New("todos os campos exceto is_published são obrigatórios")
 	}
 
-	// Verificar se o code_value é único
 	products, err := s.repo.GetAll()
 	if err != nil {
 		return domain.Product{}, err
@@ -88,7 +83,6 @@ func (s *productService) UpdateOrCreate(id int, reqBody domain.RequestBodyProduc
 		}
 	}
 
-	// Converter a data de validade para time.Time
 	expiration, err := time.Parse("02/01/2006", reqBody.Expiration)
 	if err != nil {
 		return domain.Product{}, errors.New("data de validade inválida")
@@ -127,18 +121,17 @@ func (s *productService) UpdateOrCreate(id int, reqBody domain.RequestBodyProduc
 	product.Expiration = expiration
 	product.Price = reqBody.Price
 
-	// Adicionar o produto à "database"
-	if err := s.repo.Update(id, product); err != nil {
+	if err := s.repo.Update(product); err != nil {
 		return domain.Product{}, err
 	}
 
 	return *product, nil
 }
 
-func (s *productService) Patch(id int, updates map[string]interface{}) (domain.Product, error) {
-	product, err := s.repo.GetByID(id)
+func (s *productService) Patch(productId int, updates map[string]interface{}) (domain.Product, error) {
+	product, err := s.repo.GetByID(productId)
 	if err != nil {
-		return domain.Product{}, errors.New("produto não encontrado")
+		return domain.Product{}, fmt.Errorf("%w: Produto com id %d não encontrado", domain.ErrResourceNotFound, productId)
 	}
 
 	for key, value := range updates {
@@ -186,7 +179,7 @@ func (s *productService) Patch(id int, updates map[string]interface{}) (domain.P
 		}
 	}
 
-	if err := s.repo.Update(id, product); err != nil {
+	if err := s.repo.Update(product); err != nil {
 		return domain.Product{}, err
 	}
 

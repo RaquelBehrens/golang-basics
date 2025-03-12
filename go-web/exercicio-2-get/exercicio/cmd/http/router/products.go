@@ -17,11 +17,11 @@ func buildProductsRoutes() http.Handler {
 	handler := handlers.NewProductHandler(srv)
 
 	rt.Get("/", handler.GetAll())
-	rt.Get("/{id}", handler.GetByID())
+	rt.Get("/{productId}", handler.GetByID())
 	rt.Post("/", handler.Create())
-	rt.Put("/{id}", handler.UpdateOrCreate())
-	rt.Patch("/{id}", handler.Patch())
-	rt.Delete("/{id}", handler.Delete())
+	rt.Put("/{productId}", handler.UpdateOrCreate())
+	rt.Patch("/{productId}", handler.Patch())
+	rt.Delete("/{productId}", handler.Delete())
 
 	return rt
 }

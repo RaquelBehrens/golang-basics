@@ -16,7 +16,7 @@ type Repository interface {
 	GetAll() ([]Product, error)
 	GetByID(id int) (*Product, error)
 	Create(product *Product) error
-	Update(id int, product *Product) error
+	Update(product *Product) error
 	Delete(id int) error
 }
 

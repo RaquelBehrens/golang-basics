@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"exercicio/internal/domain"
-	"exercicio/pkg/web"
 	"fmt"
 	"net/http"
 
+	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -22,26 +23,29 @@ func (e *ProductHandler) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		products, err := e.srv.GetAll()
 		if err != nil {
-			web.ResponseJson(w, http.StatusInternalServerError, nil, "Erro ao buscar produtos")
+			response.Error(w, http.StatusInternalServerError, "Erro ao buscar produtos")
 			return
 		}
-		web.ResponseJson(w, http.StatusOK, products, "Lista de produtos encontrada com sucesso!")
+		if len(products) == 0 {
+			response.JSON(w, http.StatusNoContent, nil)
+		}
+		response.JSON(w, http.StatusOK, products)
 	}
 }
 
 func (e *ProductHandler) GetByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idStr := chi.URLParam(r, "id")
+		idStr := chi.URLParam(r, "productId")
 		var id int
-		_, err := fmt.Sscanf(idStr, "%d", &id) // Coleta o ID da URL e converte para int
+		_, err := fmt.Sscanf(idStr, "%d", &id)
 		if err != nil {
-			web.ResponseJson(w, http.StatusBadRequest, nil, "ID inválido!")
+			response.Error(w, http.StatusBadRequest, "ID inválido!")
 			return
 		}
 
 		products, err := e.srv.GetAll()
 		if err != nil {
-			web.ResponseJson(w, http.StatusInternalServerError, nil, "Erro ao buscar produtos")
+			response.Error(w, http.StatusInternalServerError, "Erro ao buscar produtos!")
 			return
 		}
 
@@ -54,9 +58,9 @@ func (e *ProductHandler) GetByID() http.HandlerFunc {
 		}
 
 		if result == nil {
-			web.ResponseJson(w, http.StatusNotFound, nil, "Produto não encontrado!")
+			response.Error(w, http.StatusNotFound, "Produto não encontrado!")
 		} else {
-			web.ResponseJson(w, http.StatusOK, result, "Produto encontrado com sucesso!")
+			response.JSON(w, http.StatusFound, result)
 		}
 	}
 }
@@ -65,96 +69,93 @@ func (e *ProductHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var reqBody domain.RequestBodyProduct
 		if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-			web.ResponseJson(w, http.StatusBadRequest, nil, "JSON inválido!")
+			response.Error(w, http.StatusBadRequest, "JSON inválido!")
 			return
 		}
 
-		// Mover a lógica de validação e criação para o service
 		product, err := e.srv.Create(reqBody)
 		if err != nil {
-			web.ResponseJson(w, http.StatusInternalServerError, nil, err.Error())
+			response.Error(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		web.ResponseJson(w, http.StatusCreated, product, "Produto adicionado!")
+		response.JSON(w, http.StatusCreated, product)
 	}
 }
 
 func (e *ProductHandler) UpdateOrCreate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idStr := chi.URLParam(r, "id")
+		idStr := chi.URLParam(r, "productId")
 		var id int
 		if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
-			web.ResponseJson(w, http.StatusBadRequest, nil, "ID inválido!")
+			response.Error(w, http.StatusBadRequest, "ID inválido!")
 			return
 		}
 
 		var reqBody domain.RequestBodyProduct
 		if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-			web.ResponseJson(w, http.StatusBadRequest, nil, "JSON inválido!")
+			response.Error(w, http.StatusBadRequest, "JSON inválido!")
 			return
 		}
 
-		// Mover a lógica de validação e criação para o service
 		product, err := e.srv.UpdateOrCreate(id, reqBody)
 		if err != nil {
-			web.ResponseJson(w, http.StatusInternalServerError, nil, err.Error())
+			response.Error(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		web.ResponseJson(w, http.StatusOK, product, "Produto processado com sucesso!")
+		response.JSON(w, http.StatusOK, product)
 	}
 }
 
 func (e *ProductHandler) Patch() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idStr := chi.URLParam(r, "id")
+		idStr := chi.URLParam(r, "productId")
 		var id int
 		if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
-			web.ResponseJson(w, http.StatusBadRequest, nil, "ID inválido!")
+			response.Error(w, http.StatusBadRequest, "ID inválido!")
 			return
 		}
 
 		var reqBody map[string]interface{}
 		if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-			web.ResponseJson(w, http.StatusBadRequest, nil, "JSON inválido!")
+			response.Error(w, http.StatusBadRequest, "JSON inválido!")
 			return
 		}
 
-		// Mover a lógica de validação e criação para o service
 		product, err := e.srv.Patch(id, reqBody)
 		if err != nil {
-			if err.Error() == "produto não encontrado" {
-				web.ResponseJson(w, http.StatusNotFound, nil, "Produto não encontrado!")
+			if errors.Is(err, domain.ErrResourceNotFound) {
+				response.Error(w, http.StatusNotFound, "Produto não encontrado!")
 				return
 			}
-			web.ResponseJson(w, http.StatusInternalServerError, nil, err.Error())
+			response.Error(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		web.ResponseJson(w, http.StatusOK, product, "Produto atualizado com sucesso!")
+		response.JSON(w, http.StatusOK, product)
 	}
 }
 
 func (e *ProductHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idStr := chi.URLParam(r, "id")
+		idStr := chi.URLParam(r, "productId")
 		var id int
 		if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
-			web.ResponseJson(w, http.StatusBadRequest, nil, "ID inválido!")
-			return
-		}
-		// Mover a lógica de validação e criação para o service
-		err := e.srv.Delete(id)
-		if err != nil {
-			if err.Error() == "produto não encontrado" {
-				web.ResponseJson(w, http.StatusNotFound, nil, "Produto não encontrado!")
-				return
-			}
-			web.ResponseJson(w, http.StatusInternalServerError, nil, err.Error())
+			response.Error(w, http.StatusBadRequest, "ID inválido!")
 			return
 		}
 
-		web.ResponseJson(w, http.StatusOK, nil, "Produto deletado com sucesso!")
+		err := e.srv.Delete(id)
+		if err != nil {
+			if errors.Is(err, domain.ErrResourceNotFound) {
+				response.Error(w, http.StatusNotFound, "Produto não encontrado!")
+				return
+			}
+			response.Error(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		response.JSON(w, http.StatusNoContent, nil)
 	}
 }
