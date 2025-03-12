@@ -15,7 +15,7 @@ func NewProductService(r domain.Repository) domain.Service {
 	return &productService{repo: r}
 }
 
-func (s *productService) GetAll() ([]domain.Product, error) {
+func (s *productService) GetAll() (map[int]domain.Product, error) {
 	return s.repo.GetAll()
 }
 

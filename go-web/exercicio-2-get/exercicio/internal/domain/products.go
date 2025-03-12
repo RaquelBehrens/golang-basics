@@ -13,7 +13,7 @@ type Product struct {
 }
 
 type Repository interface {
-	GetAll() ([]Product, error)
+	GetAll() (map[int]Product, error)
 	GetByID(id int) (*Product, error)
 	Create(product *Product) error
 	Update(product *Product) error
@@ -21,7 +21,7 @@ type Repository interface {
 }
 
 type Service interface {
-	GetAll() ([]Product, error)
+	GetAll() (map[int]Product, error)
 	GetByID(id int) (*Product, error)
 	Create(reqBody RequestBodyProduct) (Product, error)
 	UpdateOrCreate(id int, reqBody RequestBodyProduct) (Product, error)

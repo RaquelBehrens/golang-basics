@@ -12,9 +12,16 @@ import (
 func buildProductsRoutes() http.Handler {
 	rt := chi.NewRouter()
 
-	repo := products.NewProductRepository("../../docs/db/products.json")
+	storage := products.NewStorage("../../docs/db/products.json")
+	repo := products.NewProductRepository(storage)
 	srv := products.NewProductService(repo)
 	handler := handlers.NewProductHandler(srv)
+
+	pathWriteProducts := "../../docs/db/teste.json"
+	allProducts, err := repo.GetAll()
+	if err == nil {
+		storage.WriteProducts(allProducts, pathWriteProducts)
+	}
 
 	rt.Get("/", handler.GetAll())
 	rt.Get("/{productId}", handler.GetByID())

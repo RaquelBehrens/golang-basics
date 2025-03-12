@@ -4,6 +4,6 @@ import (
 	"exercicio/internal/domain"
 )
 
-func NewProductRepository(path string) domain.Repository {
-	return NewMemoryRepository(path)
+func NewProductRepository(storage *Storage) domain.Repository {
+	return NewMemoryRepository(storage)
 }
