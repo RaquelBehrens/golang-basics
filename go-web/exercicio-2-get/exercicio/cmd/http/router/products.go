@@ -30,5 +30,7 @@ func buildProductsRoutes() http.Handler {
 	rt.Patch("/{productId}", handler.Patch())
 	rt.Delete("/{productId}", handler.Delete())
 
+	rt.Get("/consumer_price", handler.GetConsumerPrice())
+
 	return rt
 }

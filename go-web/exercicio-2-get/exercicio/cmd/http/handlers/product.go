@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
@@ -182,5 +184,75 @@ func (e *ProductHandler) Delete() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusNoContent, nil)
+	}
+}
+
+func (e *ProductHandler) GetConsumerPrice() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query().Get("list")
+		if query == "" {
+			response.Error(w, http.StatusBadRequest, "Query 'list' está vazia!")
+			return
+		}
+		query = strings.Trim(query, "[] ")
+		idStrings := strings.Split(query, ",")
+
+		idCounts := make(map[int]int)
+		for _, idStr := range idStrings {
+			id, err := strconv.Atoi(strings.TrimSpace(idStr))
+			if err != nil {
+				response.Error(w, http.StatusBadRequest, "ID inválido na lista!")
+				return
+			}
+			idCounts[id]++
+		}
+
+		var totalItems int = 0
+		var totalPrice float64 = 0
+		selectedProducts := []domain.Product{}
+
+		for id, count := range idCounts {
+			product, err := e.srv.GetByID(id)
+			if err != nil {
+				response.Error(w, http.StatusNotFound, "Produto não foi encontrado")
+				return
+			}
+
+			if !product.IsPublished {
+				errMessage := fmt.Sprintf("Produto de id %d não está publicado!", id)
+				response.Error(w, http.StatusBadRequest, errMessage)
+				return
+			}
+
+			if count > product.Quantity {
+				response.Error(w, http.StatusBadRequest, "Quantidade pedida excede o estoque!")
+				return
+			}
+
+			totalItems += count
+			totalPrice += float64(count) * product.Price
+			selectedProducts = append(selectedProducts, *product)
+		}
+
+		var taxRate float64
+		if totalItems < 10 {
+			taxRate = 0.21
+		} else if totalItems <= 20 {
+			taxRate = 0.17
+		} else {
+			taxRate = 0.15
+		}
+
+		totalPriceWithTax := totalPrice * (1 + taxRate)
+
+		responseData := struct {
+			Products   []domain.Product `json:"products"`
+			TotalPrice float64          `json:"totalPrice"`
+		}{
+			Products:   selectedProducts,
+			TotalPrice: totalPriceWithTax,
+		}
+
+		response.JSON(w, http.StatusOK, responseData)
 	}
 }
