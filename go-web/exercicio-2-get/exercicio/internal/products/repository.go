@@ -1,4 +1,4 @@
-package repository
+package products
 
 import (
 	"encoding/json"
@@ -8,24 +8,20 @@ import (
 	"time"
 )
 
-type ProductRepository interface {
-	GetAll() ([]domain.Product, error)
-	GetByID(id int) (*domain.Product, error)
-	Create(product domain.Product) error
-	Update(id int, product domain.Product) error
-	Delete(product domain.Product) error
-}
-
 type productRepository struct {
-	products []domain.Product
+	products map[int]domain.Product
 }
 
-func NewProductRepository(path string) (ProductRepository, error) {
-	products, err := loadProductsFromFile(path)
+func NewProductRepository(path string) (domain.ProductRepository, error) {
+	loadedProducts, err := loadProductsFromFile(path)
 	if err != nil {
 		return nil, err
 	}
-	return &productRepository{products: products}, nil
+	productMap := make(map[int]domain.Product)
+	for _, product := range loadedProducts {
+		productMap[product.ID] = product
+	}
+	return &productRepository{products: productMap}, nil
 }
 
 func loadProductsFromFile(path string) ([]domain.Product, error) {
@@ -105,40 +101,40 @@ func loadProductsFromFile(path string) ([]domain.Product, error) {
 }
 
 func (r *productRepository) GetAll() ([]domain.Product, error) {
-	return r.products, nil
+	products := make([]domain.Product, 0, len(r.products))
+	for _, product := range r.products {
+		products = append(products, product)
+	}
+	return products, nil
 }
 
 func (r *productRepository) GetByID(id int) (*domain.Product, error) {
-	for _, product := range r.products {
-		if product.ID == id {
-			return &product, nil
-		}
+	if product, exists := r.products[id]; exists {
+		return &product, nil
 	}
 	return nil, errors.New("produto não encontrado")
 }
 
-func (r *productRepository) Create(product domain.Product) error {
-	r.products = append(r.products, product)
+func (r *productRepository) Create(product *domain.Product) error {
+	if _, exists := r.products[product.ID]; exists {
+		return errors.New("um produto com esse id já existe")
+	}
+	r.products[product.ID] = *product
 	return nil
 }
 
-func (r *productRepository) Update(id int, product domain.Product) error {
-	for index, existingProduct := range r.products {
-		if existingProduct.ID == product.ID {
-			r.products[index] = product
-			return nil
-		}
+func (r *productRepository) Update(id int, product *domain.Product) error {
+	if _, exists := r.products[id]; !exists {
+		return errors.New("produto não encontrado")
 	}
-	return errors.New("produto não encontrado")
+	r.products[id] = *product
+	return nil
 }
 
-func (r *productRepository) Delete(product domain.Product) error {
-	for index, existingProduct := range r.products {
-		if existingProduct.ID == product.ID {
-			// Remova o produto da lista
-			r.products = append(r.products[:index], r.products[index+1:]...)
-			return nil
-		}
+func (r *productRepository) Delete(id int) error {
+	if _, exists := r.products[id]; !exists {
+		return errors.New("produto não encontrado")
 	}
-	return errors.New("produto não encontrado")
+	delete(r.products, id)
+	return nil
 }

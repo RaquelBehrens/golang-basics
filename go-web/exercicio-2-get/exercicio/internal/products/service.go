@@ -1,26 +1,16 @@
-package service
+package products
 
 import (
 	"errors"
 	"exercicio/internal/domain"
-	"exercicio/internal/repository"
 	"time"
 )
 
-type ProductService interface {
-	GetAll() ([]domain.Product, error)
-	GetByID(id int) (*domain.Product, error)
-	Create(reqBody domain.RequestBodyProduct) (domain.Product, error)
-	UpdateOrCreate(id int, reqBody domain.RequestBodyProduct) (domain.Product, error)
-	Patch(id int, updates map[string]interface{}) (domain.Product, error)
-	Delete(id int) error
-}
-
 type productService struct {
-	repo repository.ProductRepository
+	repo domain.ProductRepository
 }
 
-func NewProductService(r repository.ProductRepository) ProductService {
+func NewProductService(r domain.ProductRepository) domain.ProductService {
 	return &productService{repo: r}
 }
 
@@ -74,7 +64,7 @@ func (s *productService) Create(reqBody domain.RequestBodyProduct) (domain.Produ
 	}
 
 	// Adicionar o produto à "database"
-	if err := s.repo.Create(product); err != nil {
+	if err := s.repo.Create(&product); err != nil {
 		return domain.Product{}, err
 	}
 
@@ -124,7 +114,7 @@ func (s *productService) UpdateOrCreate(id int, reqBody domain.RequestBodyProduc
 			Price:       reqBody.Price,
 		}
 
-		if err := s.repo.Create(*newProduct); err != nil {
+		if err := s.repo.Create(newProduct); err != nil {
 			return domain.Product{}, err
 		}
 		return *newProduct, nil
@@ -138,7 +128,7 @@ func (s *productService) UpdateOrCreate(id int, reqBody domain.RequestBodyProduc
 	product.Price = reqBody.Price
 
 	// Adicionar o produto à "database"
-	if err := s.repo.Update(id, *product); err != nil {
+	if err := s.repo.Update(id, product); err != nil {
 		return domain.Product{}, err
 	}
 
@@ -196,7 +186,7 @@ func (s *productService) Patch(id int, updates map[string]interface{}) (domain.P
 		}
 	}
 
-	if err := s.repo.Update(id, *product); err != nil {
+	if err := s.repo.Update(id, product); err != nil {
 		return domain.Product{}, err
 	}
 
@@ -205,9 +195,5 @@ func (s *productService) Patch(id int, updates map[string]interface{}) (domain.P
 }
 
 func (s *productService) Delete(id int) error {
-	product, err := s.repo.GetByID(id)
-	if err != nil {
-		return errors.New("produto não encontrado")
-	}
-	return s.repo.Delete(*product)
+	return s.repo.Delete(id)
 }

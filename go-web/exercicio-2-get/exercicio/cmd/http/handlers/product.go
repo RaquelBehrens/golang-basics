@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"exercicio/internal/domain"
-	"exercicio/internal/service"
 	"exercicio/pkg/web"
 	"fmt"
 	"net/http"
@@ -12,10 +11,10 @@ import (
 )
 
 type ProductHandler struct {
-	srv service.ProductService
+	srv domain.ProductService
 }
 
-func NewProductHandler(s service.ProductService) *ProductHandler {
+func NewProductHandler(s domain.ProductService) *ProductHandler {
 	return &ProductHandler{srv: s}
 }
 

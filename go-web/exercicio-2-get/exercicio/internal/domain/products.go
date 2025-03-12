@@ -12,6 +12,23 @@ type Product struct {
 	Price       float64   `json:"price"`
 }
 
+type ProductRepository interface {
+	GetAll() ([]Product, error)
+	GetByID(id int) (*Product, error)
+	Create(product *Product) error
+	Update(id int, product *Product) error
+	Delete(id int) error
+}
+
+type ProductService interface {
+	GetAll() ([]Product, error)
+	GetByID(id int) (*Product, error)
+	Create(reqBody RequestBodyProduct) (Product, error)
+	UpdateOrCreate(id int, reqBody RequestBodyProduct) (Product, error)
+	Patch(id int, updates map[string]interface{}) (Product, error)
+	Delete(id int) error
+}
+
 type RequestBodyProduct struct {
 	Name        string  `json:"name"`
 	Quantity    int     `json:"quantity"`
