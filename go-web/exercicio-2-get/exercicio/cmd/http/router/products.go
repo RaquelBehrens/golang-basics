@@ -1,7 +1,6 @@
 package router
 
 import (
-	"log"
 	"net/http"
 
 	"exercicio/cmd/http/handlers"
@@ -13,11 +12,7 @@ import (
 func buildProductsRoutes() http.Handler {
 	rt := chi.NewRouter()
 
-	repo, err := products.NewProductRepository("../../docs/db/products.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	repo := products.NewProductRepository("../../docs/db/products.json")
 	srv := products.NewProductService(repo)
 	handler := handlers.NewProductHandler(srv)
 

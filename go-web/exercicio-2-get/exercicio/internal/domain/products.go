@@ -12,7 +12,7 @@ type Product struct {
 	Price       float64   `json:"price"`
 }
 
-type ProductRepository interface {
+type Repository interface {
 	GetAll() ([]Product, error)
 	GetByID(id int) (*Product, error)
 	Create(product *Product) error
@@ -20,7 +20,7 @@ type ProductRepository interface {
 	Delete(id int) error
 }
 
-type ProductService interface {
+type Service interface {
 	GetAll() ([]Product, error)
 	GetByID(id int) (*Product, error)
 	Create(reqBody RequestBodyProduct) (Product, error)

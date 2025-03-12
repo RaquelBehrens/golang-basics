@@ -11,10 +11,10 @@ import (
 )
 
 type ProductHandler struct {
-	srv domain.ProductService
+	srv domain.Service
 }
 
-func NewProductHandler(s domain.ProductService) *ProductHandler {
+func NewProductHandler(s domain.Service) *ProductHandler {
 	return &ProductHandler{srv: s}
 }
 
