@@ -25,7 +25,7 @@ func (s *productService) GetByID(id int) (*domain.Product, error) {
 func (s *productService) Create(reqBody domain.RequestBodyProduct) (domain.Product, error) {
 	// Validar campos obrigatórios
 	if reqBody.Name == "" || reqBody.Quantity <= 0 || reqBody.CodeValue == "" || reqBody.Expiration == "" || reqBody.Price <= 0 {
-		return domain.Product{}, errors.New("dados inválidos")
+		return domain.Product{}, errors.New("todos os campos exceto is_published são obrigatórios")
 	}
 
 	// Verificar se o code_value é único
@@ -35,7 +35,7 @@ func (s *productService) Create(reqBody domain.RequestBodyProduct) (domain.Produ
 	}
 	for _, product := range products {
 		if product.CodeValue == reqBody.CodeValue {
-			return domain.Product{}, errors.New("code_value já existe")
+			return domain.Product{}, errors.New("codeValue já existe")
 		}
 	}
 
@@ -74,7 +74,7 @@ func (s *productService) Create(reqBody domain.RequestBodyProduct) (domain.Produ
 func (s *productService) UpdateOrCreate(id int, reqBody domain.RequestBodyProduct) (domain.Product, error) {
 	// Validar campos obrigatórios
 	if reqBody.Name == "" || reqBody.Quantity <= 0 || reqBody.CodeValue == "" || reqBody.Expiration == "" || reqBody.Price <= 0 {
-		return domain.Product{}, errors.New("dados inválidos")
+		return domain.Product{}, errors.New("todos os campos exceto is_published são obrigatórios")
 	}
 
 	// Verificar se o code_value é único
@@ -84,7 +84,7 @@ func (s *productService) UpdateOrCreate(id int, reqBody domain.RequestBodyProduc
 	}
 	for _, product := range products {
 		if product.CodeValue == reqBody.CodeValue {
-			return domain.Product{}, errors.New("code_value já existe")
+			return domain.Product{}, errors.New("codeValue já existe")
 		}
 	}
 

@@ -72,19 +72,7 @@ func (e *ProductHandler) Create() http.HandlerFunc {
 		// Mover a lógica de validação e criação para o service
 		product, err := e.srv.Create(reqBody)
 		if err != nil {
-			if err.Error() == "code_value já existe" {
-				web.ResponseJson(w, http.StatusConflict, nil, "code_value já existe!")
-				return
-			}
-			if err.Error() == "dados inválidos" {
-				web.ResponseJson(w, http.StatusBadRequest, nil, "Todos os campos exceto is_published são obrigatórios!")
-				return
-			}
-			if err.Error() == "data de validade inválida" {
-				web.ResponseJson(w, http.StatusBadRequest, nil, "Data de validade inválida!")
-				return
-			}
-			web.ResponseJson(w, http.StatusInternalServerError, nil, "Erro ao criar produto")
+			web.ResponseJson(w, http.StatusInternalServerError, nil, err.Error())
 			return
 		}
 
@@ -110,19 +98,7 @@ func (e *ProductHandler) UpdateOrCreate() http.HandlerFunc {
 		// Mover a lógica de validação e criação para o service
 		product, err := e.srv.UpdateOrCreate(id, reqBody)
 		if err != nil {
-			if err.Error() == "code_value já existe" {
-				web.ResponseJson(w, http.StatusConflict, nil, "code_value já existe!")
-				return
-			}
-			if err.Error() == "dados inválidos" {
-				web.ResponseJson(w, http.StatusBadRequest, nil, "Todos os campos exceto is_published são obrigatórios!")
-				return
-			}
-			if err.Error() == "data de validade inválida" {
-				web.ResponseJson(w, http.StatusBadRequest, nil, "Data de validade inválida!")
-				return
-			}
-			web.ResponseJson(w, http.StatusInternalServerError, nil, "Erro ao criar produto")
+			web.ResponseJson(w, http.StatusInternalServerError, nil, err.Error())
 			return
 		}
 
