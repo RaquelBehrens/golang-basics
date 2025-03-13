@@ -13,7 +13,12 @@ func buildProductsRoutes() http.Handler {
 	rt := chi.NewRouter()
 
 	storage := products.NewStorage("../../docs/db/products.json")
-	repo := products.NewProductRepository(storage)
+	db, err := storage.ReadProducts()
+	if err != nil {
+		panic("Could not read data")
+	}
+
+	repo := products.NewProductRepository(storage, db)
 	srv := products.NewProductService(repo)
 	handler := handlers.NewProductHandler(srv)
 
