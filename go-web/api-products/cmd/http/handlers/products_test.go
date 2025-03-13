@@ -4,13 +4,13 @@ import (
 	"exercicio/cmd/http/handlers"
 	"exercicio/internal/domain"
 	"exercicio/internal/products"
+	"exercicio/internal/products/testutils"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/require"
 )
@@ -36,8 +36,7 @@ func TestProductsGetAll(t *testing.T) {
 		// when
 		req := httptest.NewRequest("GET", "/products", nil)
 		res := httptest.NewRecorder()
-		getAllProducts := hd.GetAll()
-		getAllProducts(res, req)
+		hd.GetAll()(res, req)
 
 		// then
 		expectedCode := http.StatusOK
@@ -56,13 +55,12 @@ func TestProductsGetById(t *testing.T) {
 	t.Run("success to get a product", func(t *testing.T) {
 		// given
 		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Get("/products/{productId}", hd.GetByID())
 
 		// when
 		req := httptest.NewRequest("GET", "/products/1", nil)
+		req = testutils.WithUrlParam(t, req, "productId", "1")
 		res := httptest.NewRecorder()
-		r.ServeHTTP(res, req)
+		hd.GetByID()(res, req)
 
 		// then
 		expectedCode := http.StatusFound
@@ -77,13 +75,12 @@ func TestProductsGetById(t *testing.T) {
 	t.Run("bad request while trying to get a product", func(t *testing.T) {
 		// given
 		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Get("/products/{productId}", hd.GetByID())
 
 		// when
 		req := httptest.NewRequest("GET", "/products/invalidID", nil)
+		req = testutils.WithUrlParam(t, req, "productId", "invalidId")
 		res := httptest.NewRecorder()
-		r.ServeHTTP(res, req)
+		hd.GetByID()(res, req)
 
 		// then
 		expectedCode := http.StatusBadRequest
@@ -98,13 +95,11 @@ func TestProductsGetById(t *testing.T) {
 	t.Run("not found while trying to get a product", func(t *testing.T) {
 		// given
 		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Get("/products/{productId}", hd.GetByID())
-
 		// when
 		req := httptest.NewRequest("GET", "/products/4", nil)
+		req = testutils.WithUrlParam(t, req, "productId", "4")
 		res := httptest.NewRecorder()
-		r.ServeHTTP(res, req)
+		hd.GetByID()(res, req)
 
 		// then
 		expectedCode := http.StatusNotFound
@@ -166,16 +161,14 @@ func TestProductsUpdateOrCreate(t *testing.T) {
 	t.Run("success to update a product", func(t *testing.T) {
 		// given
 		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Put("/products/{productId}", hd.UpdateOrCreate())
-
 		updatedProduct := `{"id":1,"name":"Teste 3","quantity":2,"codeValue":"T7","isPublished":false,"expiration":"11/05/2027","price":45.00}`
 
 		// when
 		req := httptest.NewRequest("PUT", "/products/1", strings.NewReader(updatedProduct))
-		res := httptest.NewRecorder()
+		req = testutils.WithUrlParam(t, req, "productId", "1")
 		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
-		r.ServeHTTP(res, req)
+		res := httptest.NewRecorder()
+		hd.UpdateOrCreate()(res, req)
 
 		// then
 		expectedCode := http.StatusOK
@@ -190,16 +183,15 @@ func TestProductsUpdateOrCreate(t *testing.T) {
 	t.Run("bad request while trying to update a product", func(t *testing.T) {
 		// given
 		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Put("/products/{productId}", hd.UpdateOrCreate())
 
 		updatedProduct := `{"id":1,"name":"Teste 3","quantity":2,"codeValue":"T7","isPublished":false,"expiration":"11/05/2027","price":45.00}`
 
 		// when
 		req := httptest.NewRequest("PUT", "/products/invalidID", strings.NewReader(updatedProduct))
-		res := httptest.NewRecorder()
+		req = testutils.WithUrlParam(t, req, "productId", "invalidId")
 		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
-		r.ServeHTTP(res, req)
+		res := httptest.NewRecorder()
+		hd.UpdateOrCreate()(res, req)
 
 		// then
 		expectedCode := http.StatusBadRequest
@@ -239,16 +231,14 @@ func TestProductsPatch(t *testing.T) {
 	t.Run("success to update an item in product", func(t *testing.T) {
 		// given
 		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Patch("/products/{productId}", hd.Patch())
-
 		updatedProduct := `{"quantity":2}`
 
 		// when
 		req := httptest.NewRequest("PATCH", "/products/1", strings.NewReader(updatedProduct))
-		res := httptest.NewRecorder()
+		req = testutils.WithUrlParam(t, req, "productId", "1")
 		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
-		r.ServeHTTP(res, req)
+		res := httptest.NewRecorder()
+		hd.Patch()(res, req)
 
 		// then
 		expectedCode := http.StatusOK
@@ -263,16 +253,14 @@ func TestProductsPatch(t *testing.T) {
 	t.Run("bad request while trying to an item in product", func(t *testing.T) {
 		// given
 		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Patch("/products/{productId}", hd.Patch())
-
 		updatedProduct := `{"quantity":2}`
 
 		// when
 		req := httptest.NewRequest("PATCH", "/products/invalidId", strings.NewReader(updatedProduct))
-		res := httptest.NewRecorder()
+		req = testutils.WithUrlParam(t, req, "productId", "invalidId")
 		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
-		r.ServeHTTP(res, req)
+		res := httptest.NewRecorder()
+		hd.Patch()(res, req)
 
 		// then
 		expectedCode := http.StatusBadRequest
@@ -287,16 +275,14 @@ func TestProductsPatch(t *testing.T) {
 	t.Run("not found while trying to an item in product", func(t *testing.T) {
 		// given
 		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Patch("/products/{productId}", hd.Patch())
-
 		updatedProduct := `{"quantity":2}`
 
 		// when
 		req := httptest.NewRequest("PATCH", "/products/4", strings.NewReader(updatedProduct))
-		res := httptest.NewRecorder()
+		req = testutils.WithUrlParam(t, req, "productId", "4")
 		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
-		r.ServeHTTP(res, req)
+		res := httptest.NewRecorder()
+		hd.Patch()(res, req)
 
 		// then
 		expectedCode := http.StatusNotFound
@@ -336,14 +322,13 @@ func TestProductsDelete(t *testing.T) {
 	t.Run("success to delete a product", func(t *testing.T) {
 		// given
 		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Delete("/products/{productId}", hd.Delete())
 
 		// when
 		req := httptest.NewRequest("DELETE", "/products/1", nil)
-		res := httptest.NewRecorder()
+		req = testutils.WithUrlParam(t, req, "productId", "1")
 		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
-		r.ServeHTTP(res, req)
+		res := httptest.NewRecorder()
+		hd.Delete()(res, req)
 
 		// then
 		expectedCode := http.StatusNoContent
@@ -357,14 +342,13 @@ func TestProductsDelete(t *testing.T) {
 	t.Run("bad request while trying to delete a product", func(t *testing.T) {
 		// given
 		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Delete("/products/{productId}", hd.Delete())
 
 		// when
 		req := httptest.NewRequest("DELETE", "/products/invalidId", nil)
-		res := httptest.NewRecorder()
+		req = testutils.WithUrlParam(t, req, "productId", "invalidId")
 		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
-		r.ServeHTTP(res, req)
+		res := httptest.NewRecorder()
+		hd.Delete()(res, req)
 
 		// then
 		expectedCode := http.StatusBadRequest
@@ -379,14 +363,13 @@ func TestProductsDelete(t *testing.T) {
 	t.Run("not found while trying to delete a product", func(t *testing.T) {
 		// given
 		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Delete("/products/{productId}", hd.Delete())
 
 		// when
 		req := httptest.NewRequest("DELETE", "/products/4", nil)
-		res := httptest.NewRecorder()
+		req = testutils.WithUrlParam(t, req, "productId", "4")
 		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
-		r.ServeHTTP(res, req)
+		res := httptest.NewRecorder()
+		hd.Delete()(res, req)
 
 		// then
 		expectedCode := http.StatusNotFound
