@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 )
 
 type router struct {
@@ -12,6 +13,9 @@ type router struct {
 
 func (router *router) MapRoutes() http.Handler {
 	r := chi.NewRouter()
+
+	//r.Use(middleware.Logger)
+	r.Use(chimiddleware.Logger)
 	r.Use(middleware.Auth)
 
 	r.Route("/products", func(rp chi.Router) {

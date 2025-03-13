@@ -22,11 +22,11 @@ func buildProductsRoutes() http.Handler {
 	srv := products.NewProductService(repo)
 	handler := handlers.NewProductHandler(srv)
 
-	pathWriteProducts := "../../docs/db/teste.json"
-	allProducts, err := repo.GetAll()
-	if err == nil {
-		storage.WriteProducts(allProducts, pathWriteProducts)
-	}
+	// pathWriteProducts := "../../docs/db/teste.json"
+	// allProducts, err := repo.GetAll()
+	// if err == nil {
+	// 	storage.WriteProducts(allProducts, pathWriteProducts)
+	// }
 
 	rt.Get("/", handler.GetAll())
 	rt.Get("/{productId}", handler.GetByID())
