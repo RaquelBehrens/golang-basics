@@ -6,7 +6,6 @@ import (
 	"exercicio/internal/domain"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
@@ -70,12 +69,6 @@ func (e *ProductHandler) GetByID() http.HandlerFunc {
 
 func (e *ProductHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
-		if token != os.Getenv("API_TOKEN") {
-			response.Error(w, http.StatusUnauthorized, "Token inválido.")
-			return
-		}
-
 		var reqBody domain.RequestBodyProduct
 		if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
 			response.Error(w, http.StatusBadRequest, "JSON inválido!")
@@ -94,12 +87,6 @@ func (e *ProductHandler) Create() http.HandlerFunc {
 
 func (e *ProductHandler) UpdateOrCreate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
-		if token != os.Getenv("API_TOKEN") {
-			response.Error(w, http.StatusUnauthorized, "Token inválido.")
-			return
-		}
-
 		idStr := chi.URLParam(r, "productId")
 		var id int
 		if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
@@ -125,12 +112,6 @@ func (e *ProductHandler) UpdateOrCreate() http.HandlerFunc {
 
 func (e *ProductHandler) Patch() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
-		if token != os.Getenv("API_TOKEN") {
-			response.Error(w, http.StatusUnauthorized, "Token inválido.")
-			return
-		}
-
 		idStr := chi.URLParam(r, "productId")
 		var id int
 		if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
@@ -160,12 +141,6 @@ func (e *ProductHandler) Patch() http.HandlerFunc {
 
 func (e *ProductHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
-		if token != os.Getenv("API_TOKEN") {
-			response.Error(w, http.StatusUnauthorized, "Token inválido.")
-			return
-		}
-
 		idStr := chi.URLParam(r, "productId")
 		var id int
 		if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {

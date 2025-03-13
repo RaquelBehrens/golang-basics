@@ -6,7 +6,6 @@ import (
 	"exercicio/internal/products"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -127,9 +126,9 @@ func TestProductsCreate(t *testing.T) {
 		// when
 		req := httptest.NewRequest("POST", "/products", strings.NewReader(newProduct))
 		res := httptest.NewRecorder()
-		req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
-		getAllProducts := hd.Create()
-		getAllProducts(res, req)
+		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
+
+		hd.Create()(res, req)
 
 		// then
 		expectedCode := http.StatusCreated
@@ -141,26 +140,26 @@ func TestProductsCreate(t *testing.T) {
 		require.Equal(t, expectedHeader, res.Header())
 	})
 
-	t.Run("unauthorized while trying to create a product", func(t *testing.T) {
-		// given
-		hd := setupHandler()
-		newProduct := `{"name":"Teste 3","quantity":3,"codeValue":"T3","isPublished":true,"expiration":"11/05/2025","price":3.00}`
+	// t.Run("unauthorized while trying to create a product", func(t *testing.T) {
+	// 	// given
+	// 	hd := setupHandler()
+	// 	newProduct := `{"name":"Teste 3","quantity":3,"codeValue":"T3","isPublished":true,"expiration":"11/05/2025","price":3.00}`
 
-		// when
-		req := httptest.NewRequest("POST", "/products", strings.NewReader(newProduct))
-		res := httptest.NewRecorder()
-		getAllProducts := hd.Create()
-		getAllProducts(res, req)
+	// 	// when
+	// 	req := httptest.NewRequest("POST", "/products", strings.NewReader(newProduct))
+	// 	res := httptest.NewRecorder()
+	// 	getAllProducts := hd.Create()
+	// 	getAllProducts(res, req)
 
-		// then
-		expectedCode := http.StatusUnauthorized
-		expectedBody := `{"message":"Token inválido.", "status":"Unauthorized"}`
-		expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
+	// 	// then
+	// 	expectedCode := http.StatusUnauthorized
+	// 	expectedBody := `{"message":"Token inválido.", "status":"Unauthorized"}`
+	// 	expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
 
-		require.Equal(t, expectedCode, res.Code)
-		require.JSONEq(t, expectedBody, res.Body.String())
-		require.Equal(t, expectedHeader, res.Header())
-	})
+	// 	require.Equal(t, expectedCode, res.Code)
+	// 	require.JSONEq(t, expectedBody, res.Body.String())
+	// 	require.Equal(t, expectedHeader, res.Header())
+	// })
 }
 
 func TestProductsUpdateOrCreate(t *testing.T) {
@@ -175,7 +174,7 @@ func TestProductsUpdateOrCreate(t *testing.T) {
 		// when
 		req := httptest.NewRequest("PUT", "/products/1", strings.NewReader(updatedProduct))
 		res := httptest.NewRecorder()
-		req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
+		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
 		r.ServeHTTP(res, req)
 
 		// then
@@ -199,7 +198,7 @@ func TestProductsUpdateOrCreate(t *testing.T) {
 		// when
 		req := httptest.NewRequest("PUT", "/products/invalidID", strings.NewReader(updatedProduct))
 		res := httptest.NewRecorder()
-		req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
+		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
 		r.ServeHTTP(res, req)
 
 		// then
@@ -212,28 +211,28 @@ func TestProductsUpdateOrCreate(t *testing.T) {
 		require.Equal(t, expectedHeader, res.Header())
 	})
 
-	t.Run("unauthorized while trying to update a product", func(t *testing.T) {
-		// given
-		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Put("/products/{productId}", hd.UpdateOrCreate())
+	// t.Run("unauthorized while trying to update a product", func(t *testing.T) {
+	// 	// given
+	// 	hd := setupHandler()
+	// 	r := chi.NewRouter()
+	// 	r.Put("/products/{productId}", hd.UpdateOrCreate())
 
-		updatedProduct := `{"id":1,"name":"Teste 3","quantity":2,"codeValue":"T7","isPublished":false,"expiration":"11/05/2027","price":45.00}`
+	// 	updatedProduct := `{"id":1,"name":"Teste 3","quantity":2,"codeValue":"T7","isPublished":false,"expiration":"11/05/2027","price":45.00}`
 
-		// when
-		req := httptest.NewRequest("PUT", "/products/1", strings.NewReader(updatedProduct))
-		res := httptest.NewRecorder()
-		r.ServeHTTP(res, req)
+	// 	// when
+	// 	req := httptest.NewRequest("PUT", "/products/1", strings.NewReader(updatedProduct))
+	// 	res := httptest.NewRecorder()
+	// 	r.ServeHTTP(res, req)
 
-		// then
-		expectedCode := http.StatusUnauthorized
-		expectedBody := `{"message":"Token inválido.", "status":"Unauthorized"}`
-		expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
+	// 	// then
+	// 	expectedCode := http.StatusUnauthorized
+	// 	expectedBody := `{"message":"Token inválido.", "status":"Unauthorized"}`
+	// 	expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
 
-		require.Equal(t, expectedCode, res.Code)
-		require.JSONEq(t, expectedBody, res.Body.String())
-		require.Equal(t, expectedHeader, res.Header())
-	})
+	// 	require.Equal(t, expectedCode, res.Code)
+	// 	require.JSONEq(t, expectedBody, res.Body.String())
+	// 	require.Equal(t, expectedHeader, res.Header())
+	// })
 }
 
 func TestProductsPatch(t *testing.T) {
@@ -248,7 +247,7 @@ func TestProductsPatch(t *testing.T) {
 		// when
 		req := httptest.NewRequest("PATCH", "/products/1", strings.NewReader(updatedProduct))
 		res := httptest.NewRecorder()
-		req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
+		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
 		r.ServeHTTP(res, req)
 
 		// then
@@ -272,7 +271,7 @@ func TestProductsPatch(t *testing.T) {
 		// when
 		req := httptest.NewRequest("PATCH", "/products/invalidId", strings.NewReader(updatedProduct))
 		res := httptest.NewRecorder()
-		req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
+		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
 		r.ServeHTTP(res, req)
 
 		// then
@@ -296,7 +295,7 @@ func TestProductsPatch(t *testing.T) {
 		// when
 		req := httptest.NewRequest("PATCH", "/products/4", strings.NewReader(updatedProduct))
 		res := httptest.NewRecorder()
-		req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
+		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
 		r.ServeHTTP(res, req)
 
 		// then
@@ -309,28 +308,28 @@ func TestProductsPatch(t *testing.T) {
 		require.Equal(t, expectedHeader, res.Header())
 	})
 
-	t.Run("unauthorized while trying to update an item in product", func(t *testing.T) {
-		// given
-		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Patch("/products/{productId}", hd.Patch())
+	// t.Run("unauthorized while trying to update an item in product", func(t *testing.T) {
+	// 	// given
+	// 	hd := setupHandler()
+	// 	r := chi.NewRouter()
+	// 	r.Patch("/products/{productId}", hd.Patch())
 
-		updatedProduct := `{"quantity":2}`
+	// 	updatedProduct := `{"quantity":2}`
 
-		// when
-		req := httptest.NewRequest("PATCH", "/products/1", strings.NewReader(updatedProduct))
-		res := httptest.NewRecorder()
-		r.ServeHTTP(res, req)
+	// 	// when
+	// 	req := httptest.NewRequest("PATCH", "/products/1", strings.NewReader(updatedProduct))
+	// 	res := httptest.NewRecorder()
+	// 	r.ServeHTTP(res, req)
 
-		// then
-		expectedCode := http.StatusUnauthorized
-		expectedBody := `{"message":"Token inválido.", "status":"Unauthorized"}`
-		expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
+	// 	// then
+	// 	expectedCode := http.StatusUnauthorized
+	// 	expectedBody := `{"message":"Token inválido.", "status":"Unauthorized"}`
+	// 	expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
 
-		require.Equal(t, expectedCode, res.Code)
-		require.JSONEq(t, expectedBody, res.Body.String())
-		require.Equal(t, expectedHeader, res.Header())
-	})
+	// 	require.Equal(t, expectedCode, res.Code)
+	// 	require.JSONEq(t, expectedBody, res.Body.String())
+	// 	require.Equal(t, expectedHeader, res.Header())
+	// })
 }
 
 func TestProductsDelete(t *testing.T) {
@@ -343,7 +342,7 @@ func TestProductsDelete(t *testing.T) {
 		// when
 		req := httptest.NewRequest("DELETE", "/products/1", nil)
 		res := httptest.NewRecorder()
-		req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
+		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
 		r.ServeHTTP(res, req)
 
 		// then
@@ -364,7 +363,7 @@ func TestProductsDelete(t *testing.T) {
 		// when
 		req := httptest.NewRequest("DELETE", "/products/invalidId", nil)
 		res := httptest.NewRecorder()
-		req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
+		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
 		r.ServeHTTP(res, req)
 
 		// then
@@ -386,7 +385,7 @@ func TestProductsDelete(t *testing.T) {
 		// when
 		req := httptest.NewRequest("DELETE", "/products/4", nil)
 		res := httptest.NewRecorder()
-		req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
+		// req.Header.Set("Authorization", os.Getenv("API_TOKEN"))
 		r.ServeHTTP(res, req)
 
 		// then
@@ -399,24 +398,24 @@ func TestProductsDelete(t *testing.T) {
 		require.Equal(t, expectedHeader, res.Header())
 	})
 
-	t.Run("unauthorized while trying to delete a product", func(t *testing.T) {
-		// given
-		hd := setupHandler()
-		r := chi.NewRouter()
-		r.Delete("/products/{productId}", hd.Delete())
+	// t.Run("unauthorized while trying to delete a product", func(t *testing.T) {
+	// 	// given
+	// 	hd := setupHandler()
+	// 	r := chi.NewRouter()
+	// 	r.Delete("/products/{productId}", hd.Delete())
 
-		// when
-		req := httptest.NewRequest("DELETE", "/products/4", nil)
-		res := httptest.NewRecorder()
-		r.ServeHTTP(res, req)
+	// 	// when
+	// 	req := httptest.NewRequest("DELETE", "/products/4", nil)
+	// 	res := httptest.NewRecorder()
+	// 	r.ServeHTTP(res, req)
 
-		// then
-		expectedCode := http.StatusUnauthorized
-		expectedBody := `{"message":"Token inválido.", "status":"Unauthorized"}`
-		expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
+	// 	// then
+	// 	expectedCode := http.StatusUnauthorized
+	// 	expectedBody := `{"message":"Token inválido.", "status":"Unauthorized"}`
+	// 	expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
 
-		require.Equal(t, expectedCode, res.Code)
-		require.JSONEq(t, expectedBody, res.Body.String())
-		require.Equal(t, expectedHeader, res.Header())
-	})
+	// 	require.Equal(t, expectedCode, res.Code)
+	// 	require.JSONEq(t, expectedBody, res.Body.String())
+	// 	require.Equal(t, expectedHeader, res.Header())
+	// })
 }
