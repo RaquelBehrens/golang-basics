@@ -35,7 +35,7 @@ func NewServerChi(cfg *ConfigServerChi) *ServerChi {
 	}
 
 	return &ServerChi{
-		serverAddress: defaultConfig.ServerAddress,
+		serverAddress:  defaultConfig.ServerAddress,
 		loaderFilePath: defaultConfig.LoaderFilePath,
 	}
 }
@@ -72,6 +72,24 @@ func (a *ServerChi) Run() (err error) {
 	rt.Route("/vehicles", func(rt chi.Router) {
 		// - GET /vehicles
 		rt.Get("/", hd.GetAll())
+
+		rt.Post("/", hd.Create())
+		rt.Post("/batch", hd.CreateBatch())
+
+		rt.Get("/color/{color}/year/{year}", hd.GetByColorYear())
+		rt.Get("/brand/{brand}/between/{start_year}/{end_year}", hd.GetByBrandFabricatedBetween())
+		rt.Get("/average_speed/brand/{brand}", hd.GetAverageSpeedByBrand())
+		rt.Get("/fuel_type/{type}", hd.GetByFuelType())
+		rt.Get("/transmission/{type}", hd.GetByTransmissionType())
+		rt.Get("/average_capacity/brand/{brand}", hd.GetAverageCapacityByBrand())
+		rt.Get("/dimensions", hd.GetByDimensions())
+		rt.Get("/weight", hd.GetVehiclesByWeightRange())
+
+		rt.Put("/{id}/update_speed", hd.UpdateSpeed())
+		rt.Put("/{id}/update_fuel", hd.UpdateFuel())
+
+		rt.Delete("/{id}", hd.Delete())
+
 	})
 
 	// run server

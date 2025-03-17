@@ -1,0 +1,32 @@
+domain/error.go
+var ErrIdAlreadyExists = errors.New("vehicle with this id already exists")
+errors.Is(err, domain.ErrIdAlreadyExists) 
+
+com query params
+rt.Get("/dimensions", hd.GetByDimensions())
+widthRange := r.URL.Query().Get("width")
+
+transformar em float
+min, err1 := strconv.ParseFloat(minStr, 64)
+
+post
+var reqBody loader.VehicleJSON
+err := json.NewDecoder(r.Body).Decode(&reqBody)
+
+_, exists := r.db[v.Id]
+if exists 
+r.db[v.Id] = v
+
+transformar em int
+yearStr := chi.URLParam(r, "year")
+var year int
+if _, err := fmt.Sscanf(yearStr, "%d", &year); err != nil 
+
+update
+vehicle, exists := r.db[v.Id]
+if exists 
+vehicle.MaxSpeed = v.MaxSpeed
+r.db[v.Id] = vehicle
+
+delete
+delete(r.db, id)
