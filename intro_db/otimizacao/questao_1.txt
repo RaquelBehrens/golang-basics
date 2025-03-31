@@ -1,0 +1,99 @@
+1ª FN:
+
+1   id_factura  int(11)
+2   fecha_factura date
+3   forma_pago  decimal(10,0)
+4   IVA decimal(10,0)
+5   cantidad    int(11)
+6   importe decimal(10,0)
+7   nombre_cliente  varchar(40)
+8   apellido_cliente varchar(40)
+9   direccion_cliente   varchar(40)
+10  descripcion_articulo    varchar(40)
+
+Na primeira forma normal, as colunas repetidas devem ser removidas e colocadas em tabelas separadas.
+Por exemplo, se tivesse uma coluna telefone com vários telefones em um registro, ou se tivesse várias
+colunas telefone (telefone1, telefone2, telefone3), deveria-se criar uma tabela telefone, com as colunas:
+id do cliente, o telefone, e uma coluna tipo para diferenciar o primeiro, o segundo e o terceiro telefone
+do cliente.
+Como não tem nenhum caso assim nessa tabela, ela já estava na primeira forma normal.
+
+
+2ª FN:
+
+Cliente:
+1   id_cliente  int(11)
+2   nombre_cliente  varchar(40)
+3   apellido_cliente varchar(40)
+4   direccion_cliente   varchar(40)
+
+Produto:
+1   id_articulo int(11)
+2   descripcion_articulo    varchar(40)
+3   IVA decimal(10,0)
+
+// contém informações sobre a fatura em si (data, forma de pagamento, e o ID do cliente a quem a fatura foi emitida).
+Fatura:
+1   id_factura  int(11)
+2   id_cliente  int(11)
+3   fecha_factura date
+4   forma_pago  decimal(10,0)
+// Adicionei aqui pra conseguir fazer a 3FN
+5   descricao_forma_pago    varchar(40)
+5   num_parcelas decimal(10,0)
+
+// contém informações sobre quais artigos fazem parte de uma fatura específica (quantidade, preço unitário, etc.)
+Fatura_Articulo:
+1   id_factura_articulo int(11)
+2   id_factura  int(11)
+3   id_articulo int(11)
+4   cantidad    int(11)
+5   importe decimal(10,0)
+
+Na segunda forma normal, todas as dependências parciais devem ser removidas e separadas em suas próprias tabelas.
+Ou seja, em uma tabela, todos os atributos que não são chaves devem ser totalmente dependentes do atributo chave.
+Para deixar a tabela na segunda forma normal, foram criadas primeiramente as tabelas cliente, produto, que eram
+as tabelas independentes mais óbvias. E, a partir da tabela que sobrou (fatura), foi separada em fatura, e 
+fatura_produto, pois a tabela fatura representa a fatura total de uma compra (que pode ser formada por vários 
+produtos), e a tabela fatura_produto, liga um conjunto de produtos do mesmo tipo de uma compra, a essa compra (para
+poder ter a quantidade certinha de cada produto).
+
+
+3a FN:
+
+Cliente:
+1   id_cliente  int(11)
+2   nombre_cliente  varchar(40)
+3   apellido_cliente varchar(40)
+4   direccion_cliente   varchar(40)
+
+Produto:
+1   id_articulo int(11)
+2   descripcion_articulo    varchar(40)
+3   IVA decimal(10,0)
+
+// contém informações sobre a fatura em si (data, forma de pagamento, e o ID do cliente a quem a fatura foi emitida).
+Fatura:
+1   id_factura  int(11)
+2   id_cliente  int(11)
+3   fecha_factura date
+4   forma_pago_id  decimal(10,0)
+
+FormaPago:
+1   forma_pago_id  decimal(10,0)
+2   descricao_forma_pago    varchar(40)
+3   num_parcelas decimal(10,0)
+
+// contém informações sobre quais artigos fazem parte de uma fatura específica (quantidade, preço unitário, etc.)
+Fatura_Articulo:
+1   id_factura_articulo int(11)
+2   id_factura  int(11)
+3   id_articulo int(11)
+4   cantidad    int(11)
+5   importe decimal(10,0)
+
+Na terceira forma normal, são removidos subgrupos de dados em várias colunas de uma tabela e cria novas tabelas,
+com relacionamento entre elas. Ou seja, se a tabela Fatura tivesse um atributo form_pago, e um atributo 
+descricao_form_pago, ambos são dependentes de id_fatura, mas eles são dependentes entre si também. Portanto
+criou-se a tabela FormaPago para ficar responsável por aquela forma de pagamento, enquanto criou-se uma relação
+entre FormaPago e Fatura, e Fatura tem o atributo forma_pago_id.
