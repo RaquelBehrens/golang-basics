@@ -27,6 +27,7 @@ type InvoiceJSON struct {
 	Total      float64 `json:"total"`
 	CustomerId int     `json:"customer_id"`
 }
+
 // GetAll returns all invoices
 func (h *InvoicesDefault) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +65,7 @@ type RequestBodyInvoice struct {
 	Total      float64 `json:"total"`
 	CustomerId int     `json:"customer_id"`
 }
+
 // Create creates a new invoice
 func (h *InvoicesDefault) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -103,6 +105,42 @@ func (h *InvoicesDefault) Create() http.HandlerFunc {
 		response.JSON(w, http.StatusOK, map[string]any{
 			"message": "invoice created",
 			"data":    iv,
+		})
+	}
+}
+
+func (h *InvoicesDefault) UpdateAllTotals() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		// ...
+
+		// process
+		err := h.sv.UpdateAllTotals()
+		if err != nil {
+			response.Error(w, http.StatusInternalServerError, "error updating all invoices' totals")
+			return
+		}
+
+		i, err := h.sv.FindAll()
+		if err != nil {
+			response.Error(w, http.StatusInternalServerError, "error getting invoices")
+			return
+		}
+
+		// response
+		// - serialize
+		ivJSON := make([]InvoiceJSON, len(i))
+		for ix, v := range i {
+			ivJSON[ix] = InvoiceJSON{
+				Id:         v.Id,
+				Datetime:   v.Datetime,
+				Total:      v.Total,
+				CustomerId: v.CustomerId,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "invoices' totals updated",
+			"data":    ivJSON,
 		})
 	}
 }

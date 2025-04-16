@@ -67,3 +67,12 @@ func (r *InvoicesMySQL) Save(i *internal.Invoice) (err error) {
 
 	return
 }
+
+func (r *InvoicesMySQL) UpdateAllTotals() (err error) {
+	_, err = r.db.Exec(
+		"UPDATE `invoices` as i SET i.`total` = " +
+			"(SELECT SUM(s.`quantity` * p.`price`) FROM `sales` s INNER JOIN `products` p ON s.`product_id` = p.`id` " +
+			"WHERE s.`invoice_id` = i.`id`)",
+	)
+	return
+}
