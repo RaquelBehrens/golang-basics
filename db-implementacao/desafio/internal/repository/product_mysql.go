@@ -67,3 +67,35 @@ func (r *ProductsMySQL) Save(p *internal.Product) (err error) {
 
 	return
 }
+
+func (r *ProductsMySQL) GetBestSellingProducts() (p []internal.BestSellingProducts, err error) {
+	// execute the query
+	rows, err := r.db.Query("SELECT p.`description`, SUM(s.`quantity`) as total " +
+		"FROM `products` p " +
+		"INNER JOIN `sales` s ON p.`id` = s.`product_id` " +
+		"GROUP BY p.`id` " +
+		"ORDER BY total DESC " +
+		"LIMIT 5 ")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// iterate over the rows
+	for rows.Next() {
+		var pr internal.BestSellingProducts
+		// scan the row into the product
+		err := rows.Scan(&pr.Description, &pr.Total)
+		if err != nil {
+			return nil, err
+		}
+		// append the product to the slice
+		p = append(p, pr)
+	}
+	err = rows.Err()
+	if err != nil {
+		return
+	}
+
+	return
+}

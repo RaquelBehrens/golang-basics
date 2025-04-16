@@ -17,3 +17,13 @@ type Customer struct {
 	// CustomerAttributes is the attributes of the customer.
 	CustomerAttributes
 }
+type CustomerInvoicesByCondition struct {
+	Condition int
+	Total     float64
+}
+
+type MostActiveCustomersByAmountSpent struct {
+	FirstName string
+	LastName  string
+	Amount    float64
+}

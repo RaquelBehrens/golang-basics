@@ -24,3 +24,13 @@ func (s *CustomersDefault) Save(c *internal.Customer) (err error) {
 	err = s.rp.Save(c)
 	return
 }
+
+func (s *CustomersDefault) FindInvoicesByCondition() (c []internal.CustomerInvoicesByCondition, err error) {
+	c, err = s.rp.FindInvoicesByCondition()
+	return
+}
+
+func (s *CustomersDefault) GetMostActiveCustomersByAmountSpent() (c []internal.MostActiveCustomersByAmountSpent, err error) {
+	c, err = s.rp.GetMostActiveCustomersByAmountSpent()
+	return
+}

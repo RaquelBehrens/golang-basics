@@ -28,6 +28,7 @@ type CustomerJSON struct {
 	LastName  string `json:"last_name"`
 	Condition int    `json:"condition"`
 }
+
 // GetAll returns all customers
 func (h *CustomersDefault) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -66,6 +67,7 @@ type RequestBodyCustomer struct {
 	LastName  string `json:"last_name"`
 	Condition int    `json:"condition"`
 }
+
 // Create creates a new customer
 func (h *CustomersDefault) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -105,6 +107,76 @@ func (h *CustomersDefault) Create() http.HandlerFunc {
 		response.JSON(w, http.StatusCreated, map[string]any{
 			"message": "customer created",
 			"data":    cs,
+		})
+	}
+}
+
+type CustomerInvoiceByConditionJSON struct {
+	Condition int     `json:"condition"`
+	Total     float64 `json:"total"`
+}
+
+func (h *CustomersDefault) GetInvoicesByCondition() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		// ...
+
+		// process
+		c, err := h.sv.FindInvoicesByCondition()
+		if err != nil {
+			log.Println(err)
+			response.Error(w, http.StatusInternalServerError, "error getting customers")
+			return
+		}
+
+		// response
+		// - serialize
+		csJSON := make([]CustomerInvoiceByConditionJSON, len(c))
+		for ix, v := range c {
+			csJSON[ix] = CustomerInvoiceByConditionJSON{
+				Condition: v.Condition,
+				Total:     v.Total,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "invoices found by condition",
+			"data":    csJSON,
+		})
+	}
+}
+
+type MostActiveCustomersByAmountSpentJSON struct {
+	FirstName string  `json:"first_name"`
+	LastName  string  `json:"last_name"`
+	Amount    float64 `json:"amount"`
+}
+
+func (h *CustomersDefault) GetMostActiveCustomersByAmountSpent() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		// ...
+
+		// process
+		c, err := h.sv.GetMostActiveCustomersByAmountSpent()
+		if err != nil {
+			log.Println(err)
+			response.Error(w, http.StatusInternalServerError, "error getting customers")
+			return
+		}
+
+		// response
+		// - serialize
+		csJSON := make([]MostActiveCustomersByAmountSpentJSON, len(c))
+		for ix, v := range c {
+			csJSON[ix] = MostActiveCustomersByAmountSpentJSON{
+				FirstName: v.FirstName,
+				LastName:  v.LastName,
+				Amount:    v.Amount,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "most active customers found by condition",
+			"data":    csJSON,
 		})
 	}
 }

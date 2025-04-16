@@ -64,7 +64,68 @@ func (r *CustomersMySQL) Save(c *internal.Customer) (err error) {
 
 	// set the id
 	(*c).Id = int(id)
-	
+
 	return
 }
 
+func (r *CustomersMySQL) FindInvoicesByCondition() (c []internal.CustomerInvoicesByCondition, err error) {
+	// execute the query
+	rows, err := r.db.Query(
+		"SELECT c.`condition`, ROUND(SUM(i.`total`), 2) AS `total` " +
+			"FROM customers as c INNER JOIN invoices as i ON c.`id` = i.`customer_id` " +
+			"GROUP BY c.`condition`",
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// iterate over the rows
+	for rows.Next() {
+		var cs internal.CustomerInvoicesByCondition
+		// scan the row into the customer
+		err := rows.Scan(&cs.Condition, &cs.Total)
+		if err != nil {
+			return nil, err
+		}
+		// append the customer to the slice
+		c = append(c, cs)
+	}
+	err = rows.Err()
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (r *CustomersMySQL) GetMostActiveCustomersByAmountSpent() (c []internal.MostActiveCustomersByAmountSpent, err error) {
+	// execute the query
+	rows, err := r.db.Query(
+		"SELECT c.`first_name`, c.`last_name`, ROUND(SUM(i.`total`), 2) AS `amount` " +
+			"FROM customers as c INNER JOIN invoices as i ON c.`id` = i.`customer_id` " +
+			"GROUP BY c.`id` ORDER BY amount DESC LIMIT 5",
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// iterate over the rows
+	for rows.Next() {
+		var cs internal.MostActiveCustomersByAmountSpent
+		// scan the row into the customer
+		err := rows.Scan(&cs.FirstName, &cs.LastName, &cs.Amount)
+		if err != nil {
+			return nil, err
+		}
+		// append the customer to the slice
+		c = append(c, cs)
+	}
+	err = rows.Err()
+	if err != nil {
+		return
+	}
+
+	return
+}

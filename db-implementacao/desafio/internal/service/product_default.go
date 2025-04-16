@@ -24,3 +24,8 @@ func (s *ProductsDefault) Save(p *internal.Product) (err error) {
 	err = s.rp.Save(p)
 	return
 }
+
+func (s *ProductsDefault) GetBestSellingProducts() (p []internal.BestSellingProducts, err error) {
+	p, err = s.rp.GetBestSellingProducts()
+	return
+}

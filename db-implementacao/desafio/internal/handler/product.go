@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	"app/internal"
@@ -26,6 +27,7 @@ type ProductJSON struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 }
+
 // GetAll returns all products
 func (h *ProductsDefault) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +63,7 @@ type RequestBodyProduct struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 }
+
 // Create creates a new product
 func (h *ProductsDefault) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -98,6 +101,40 @@ func (h *ProductsDefault) Create() http.HandlerFunc {
 		response.JSON(w, http.StatusCreated, map[string]any{
 			"message": "product created",
 			"data":    pr,
+		})
+	}
+}
+
+type BestSellingProductsJSON struct {
+	Description string `json:"description"`
+	Total       int    `json:"total"`
+}
+
+func (h *ProductsDefault) GetBestSellingProducts() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+		// ...
+
+		// process
+		c, err := h.sv.GetBestSellingProducts()
+		if err != nil {
+			log.Println(err)
+			response.Error(w, http.StatusInternalServerError, "error getting products")
+			return
+		}
+
+		// response
+		// - serialize
+		csJSON := make([]BestSellingProductsJSON, len(c))
+		for ix, v := range c {
+			csJSON[ix] = BestSellingProductsJSON{
+				Description: v.Description,
+				Total:       v.Total,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "best selling products found",
+			"data":    csJSON,
 		})
 	}
 }
