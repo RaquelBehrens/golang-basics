@@ -8,6 +8,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestCreateTuna(t *testing.T) {
+	t.Run("case 1: successfully created", func(t *testing.T) {
+		// given
+
+		// when
+		output := prey.CreateTuna()
+
+		// then
+		assert.NotNil(t, output)
+	})
+}
+
 func TestGetSpeed(t *testing.T) {
 	t.Run("case 1: speed is 0", func(t *testing.T) {
 		// given
