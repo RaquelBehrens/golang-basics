@@ -54,10 +54,18 @@ type RequestBodyConfigHunter struct {
 func (h *Hunter) ConfigureHunter() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// request
+		var reqBody RequestBodyConfigHunter
+		if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+			response.Error(w, http.StatusBadRequest, "JSON inválido!")
+			return
+		}
 
 		// process
+		h.pr.Configure(reqBody.Speed, reqBody.Position)
 
 		// response
+		res := map[string]interface{}{"position": h.pr.GetPosition(), "speed": h.pr.GetSpeed()}
+		response.JSON(w, http.StatusOK, res)
 	}
 }
 
