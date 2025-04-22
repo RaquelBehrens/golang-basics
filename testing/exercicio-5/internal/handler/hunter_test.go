@@ -101,4 +101,28 @@ func TestHunter_Hunt(t *testing.T) {
 		require.Equal(t, expectedCallHunt, ht.Calls.Hunt)
 	})
 
+	t.Run("failure in hunting", func(t *testing.T) {
+		// given
+		ht := hunter.NewHunterMock()
+		ht.HuntFunc = func(pr prey.Prey) (duration float64, err error) {
+			return 0.0, hunter.ErrCanNotHunt
+		}
+		hd := handler.NewHunter(ht, nil)
+
+		// when
+		req := httptest.NewRequest("POST", "/hunt", nil)
+		res := httptest.NewRecorder()
+		hd.Hunt()(res, req)
+
+		// then
+		expectedCode := http.StatusOK
+		expectedBody := `{"message": "caça concluída", "data":{"success":false,"duration":0.0}}`
+		expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
+		expectedCallHunt := 1
+
+		require.Equal(t, expectedCode, res.Code)
+		require.JSONEq(t, expectedBody, res.Body.String())
+		require.Equal(t, expectedHeader, res.Header())
+		require.Equal(t, expectedCallHunt, ht.Calls.Hunt)
+	})
 }
