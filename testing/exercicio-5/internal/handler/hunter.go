@@ -61,7 +61,7 @@ func (h *Hunter) ConfigureHunter() http.HandlerFunc {
 		}
 
 		// process
-		h.pr.Configure(reqBody.Speed, reqBody.Position)
+		h.ht.Configure(reqBody.Speed, reqBody.Position)
 
 		// response
 		res := map[string]interface{}{"position": h.pr.GetPosition(), "speed": h.pr.GetSpeed()}
@@ -75,7 +75,15 @@ func (h *Hunter) Hunt() http.HandlerFunc {
 		// request
 
 		// process
+		duration, _ := h.ht.Hunt(h.pr)
 
 		// response
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "caça concluída",
+			"data": map[string]any{
+				"success":  true,
+				"duration": duration,
+			},
+		})
 	}
 }
