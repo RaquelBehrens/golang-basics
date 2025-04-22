@@ -43,7 +43,7 @@ func TestHunter_ConfigurePrey(t *testing.T) {
 
 		// then
 		expectedCode := http.StatusOK
-		expectedBody := `{"speed":1,"position":{"x":0,"y":0,"z":0}}`
+		expectedBody := `{"speed":0,"position":{"X":0,"Y":0,"Z":0}}`
 		expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
 
 		require.Equal(t, expectedCode, res.Code)

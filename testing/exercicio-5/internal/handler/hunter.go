@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 	"testdoubles/internal/hunter"
 	"testdoubles/internal/positioner"
 	"testdoubles/internal/prey"
+	"testdoubles/platform/web/response"
 )
 
 // NewHunter returns a new Hunter handler.
@@ -30,10 +32,15 @@ type RequestBodyConfigPrey struct {
 func (h *Hunter) ConfigurePrey() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// request
+		var reqBody RequestBodyConfigPrey
+		json.NewDecoder(r.Body).Decode(&reqBody)
 
 		// process
+		h.pr.Configure(reqBody.Speed, reqBody.Position)
 
 		// response
+		res := map[string]interface{}{"position": h.pr.GetPosition(), "speed": h.pr.GetSpeed()}
+		response.JSON(w, http.StatusOK, res)
 	}
 }
 
