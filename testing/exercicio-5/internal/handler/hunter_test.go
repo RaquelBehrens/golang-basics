@@ -52,3 +52,27 @@ func TestHunter_ConfigurePrey(t *testing.T) {
 	})
 
 }
+
+func TestHunter_ConfigureHunter(t *testing.T) {
+	t.Run("invalid json while configuring hunter", func(t *testing.T) {
+		// given
+		hd := setupHandler()
+		newHunter := handler.RequestBodyConfigHunter{Speed: 0, Position: &positioner.Position{X: 0, Y: 0, Z: 0}}
+		jsonNewHunter, _ := json.Marshal(newHunter)
+
+		// when
+		req := httptest.NewRequest("POST", "/configure-hunter", bytes.NewReader(jsonNewHunter))
+		res := httptest.NewRecorder()
+		hd.ConfigureHunter()(res, req)
+
+		// then
+		expectedCode := http.StatusBadRequest
+		expectedBody := `"Json inválido!"`
+		expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
+
+		require.Equal(t, expectedCode, res.Code)
+		require.JSONEq(t, expectedBody, res.Body.String())
+		require.Equal(t, expectedHeader, res.Header())
+	})
+
+}
