@@ -74,3 +74,31 @@ func TestHunter_ConfigureHunter(t *testing.T) {
 	})
 
 }
+
+func TestHunter_Hunt(t *testing.T) {
+	t.Run("success in hunting", func(t *testing.T) {
+		// given
+		ht := hunter.NewHunterMock()
+		ht.HuntFunc = func(pr prey.Prey) (duration float64, err error) {
+			return 100.0, nil
+		}
+		hd := handler.NewHunter(ht, nil)
+
+		// when
+		req := httptest.NewRequest("POST", "/hunt", nil)
+		res := httptest.NewRecorder()
+		hd.Hunt()(res, req)
+
+		// then
+		expectedCode := http.StatusOK
+		expectedBody := `{"message": "caça concluída", "data":{"success":true,"duration":100.0}}`
+		expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
+		expectedCallHunt := 1
+
+		require.Equal(t, expectedCode, res.Code)
+		require.JSONEq(t, expectedBody, res.Body.String())
+		require.Equal(t, expectedHeader, res.Header())
+		require.Equal(t, expectedCallHunt, ht.Calls.Hunt)
+	})
+
+}
